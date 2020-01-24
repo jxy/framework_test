@@ -1,5 +1,5 @@
 using Random
-using Flux.Tracker
+using Flux
 
 struct Param
     beta
@@ -40,7 +40,7 @@ function uniquestr(param::Param)
 end
 
 action(param, f) = (-param.beta)*sum(cos.(plaqphase(f)))
-force(param, f) = Tracker.gradient(x -> action(param, x), f)[1]
+force(param, f) = gradient(x -> action(param, x), f)[1]
 
 # Flux cannot take the derivatives of the circshift
 #plaqphase(f) = f[1,:,:] - f[2,:,:] - circshift(f[1,:,:], [0,-1]) + circshift(f[2,:,:], [-1,0])
@@ -56,10 +56,10 @@ end
 function leapfrog(param, x, p)
     dt = param.dt
     x_ = x + 0.5dt .* p
-    p_ = p + (-dt) .* Tracker.data(force(param, x_))
+    p_ = p + (-dt) .* force(param, x_)
     for i = 1:param.nstep
         x_ += dt .* p_
-        p_ += (-dt) .* Tracker.data(force(param, x_))
+        p_ += (-dt) .* force(param, x_)
     end
     x_ += 0.5dt .* p_
     (x_, p_)
