@@ -42,9 +42,7 @@ end
 action(param, f) = (-param.beta)*sum(cos.(plaqphase(f)))
 force(param, f) = gradient(x -> action(param, x), f)[1]
 
-# Flux cannot take the derivatives of the circshift
-#plaqphase(f) = f[1,:,:] - f[2,:,:] - circshift(f[1,:,:], [0,-1]) + circshift(f[2,:,:], [-1,0])
-@views plaqphase(f) = f[1,:,:] - f[2,:,:] - hcat(f[1,:,2:end], f[1,:,1:1]) + vcat(f[2,2:end,:], f[2,1:1,:])
+plaqphase(f) = f[1,:,:] - f[2,:,:] - circshift(f[1,:,:], [0,-1]) + circshift(f[2,:,:], [-1,0])
 
 topocharge(f) = round(sum(regularize(plaqphase(f))) / 2pi)
 function regularize(f)
